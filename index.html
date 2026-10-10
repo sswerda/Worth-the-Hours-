@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#6d587e">
+<title>Worth the Hours?</title>
+<style>
+  :root{
+    --bg:#f7f4fb;
+    --card:#ffffff;
+    --ink:#242126;
+    --muted:#756e79;
+    --accent:#6d587e;
+    --accent-soft:#ece3f2;
+    --line:#e5dfe9;
+    --soft:#faf8fc;
+  }
+  *{box-sizing:border-box}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;min-height:100vh;min-height:100dvh;display:flex;align-items:center;justify-content:center;
+    padding:20px;padding-top:max(20px,env(safe-area-inset-top));padding-bottom:max(20px,env(safe-area-inset-bottom));
+    font-family:Arial, Helvetica, sans-serif;background:linear-gradient(135deg,#f7f4fb,#f1ebf5);color:var(--ink);
+  }
+  .app{width:min(520px,100%);background:var(--card);border:1px solid var(--line);border-radius:26px;padding:26px;box-shadow:0 18px 45px rgba(65,48,75,.12)}
+  .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:12px;font-weight:700;color:var(--accent)}
+  h1{margin:8px 0 8px;font-size:34px;line-height:1.05}
+  .sub{color:var(--muted);line-height:1.4;margin:0 0 24px}
+  .field{margin-bottom:16px}
+  label{display:block;font-weight:700;font-size:14px;margin-bottom:7px}
+  .money{position:relative}
+  .money span{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
+  input{width:100%;padding:15px 14px 15px 32px;border-radius:15px;border:1px solid var(--line);background:#fcfbfd;font-size:18px;outline:none}
+  input:focus{border-color:#b5a4c2;box-shadow:0 0 0 4px rgba(109,88,126,.10)}
+  input[type=number]::-webkit-outer-spin-button,input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  input[type=number]{-moz-appearance:textfield;appearance:textfield}
+  .toggle-card{margin:4px 0 16px;padding:14px 15px;background:var(--soft);border:1px solid var(--line);border-radius:16px}
+  .toggle-row{display:flex;align-items:center;justify-content:space-between;gap:16px}
+  .toggle-copy strong{display:block;font-size:14px}
+  .toggle-copy small{display:block;color:var(--muted);margin-top:3px;line-height:1.35}
+  .switch{position:relative;width:52px;height:30px;flex:none}
+  .switch input{opacity:0;width:0;height:0;padding:0}
+  .slider{position:absolute;inset:0;background:#cfc7d4;border-radius:999px;cursor:pointer;transition:.2s}
+  .slider:before{content:"";position:absolute;width:24px;height:24px;left:3px;top:3px;background:white;border-radius:50%;transition:.2s;box-shadow:0 2px 5px rgba(0,0,0,.2)}
+  .switch input:checked + .slider{background:var(--accent)}
+  .switch input:checked + .slider:before{transform:translateX(22px)}
+  .takehome-settings{display:none;margin-top:14px}
+  .takehome-settings.show{display:block}
+  .percent-wrap{position:relative}
+  .percent-wrap input{padding-left:14px;padding-right:34px}
+  .percent-wrap span{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--muted);font-weight:700}
+  .effective{margin-top:10px;font-size:13px;color:var(--muted)}
+  button{width:100%;border:0;border-radius:15px;background:var(--accent);color:#fff;font-size:16px;font-weight:800;padding:15px;cursor:pointer;touch-action:manipulation}
+  .error{display:none;color:#9c334c;font-size:13px;margin-top:10px}
+  .result{display:none;margin-top:22px;padding:24px 18px;border-radius:20px;background:var(--accent-soft);text-align:center}
+  .price{color:var(--muted);font-size:14px}
+  .time{font-size:38px;font-weight:900;margin:8px 0 4px;line-height:1.05}
+  .work{color:var(--muted);font-size:16px}
+  .rate-used{color:var(--muted);font-size:12px;margin-top:8px}
+  .question{margin-top:18px;font-size:21px;font-weight:800}
+  .tiny{margin-top:18px;text-align:center;color:var(--muted);font-size:12px;line-height:1.4}
+  @media (max-width:420px){body{padding:14px}.app{padding:22px 18px;border-radius:22px}h1{font-size:31px}.time{font-size:34px}}
+</style>
+</head>
+<body>
+<main class="app">
+  <div class="eyebrow">Money → Time</div>
+  <h1>Worth the Hours?</h1>
+  <p class="sub">See what a purchase costs in working time before you hit buy.</p>
+
+  <div class="field">
+    <label for="rate">Your hourly rate</label>
+    <div class="money"><span>$</span><input id="rate" type="number" min="0" step="0.01" inputmode="decimal" placeholder="50.00"></div>
+  </div>
+
+  <div class="toggle-card">
+    <div class="toggle-row">
+      <div class="toggle-copy">
+        <strong>Use estimated take-home pay</strong>
+        <small>Optional reality check after taxes/deductions.</small>
+      </div>
+      <label class="switch" aria-label="Use estimated take-home pay">
+        <input id="takehomeToggle" type="checkbox"><span class="slider"></span>
+      </label>
+    </div>
+    <div id="takehomeSettings" class="takehome-settings">
+      <label for="takehomePercent">Estimated take-home percentage</label>
+      <div class="percent-wrap"><input id="takehomePercent" type="number" min="1" max="100" step="1" inputmode="numeric" value="75"><span>%</span></div>
+      <div id="effective" class="effective"></div>
+    </div>
+  </div>
+
+  <div class="field">
+    <label for="purchase">Purchase amount</label>
+    <div class="money"><span>$</span><input id="purchase" type="number" min="0" step="0.01" inputmode="decimal" placeholder="40.00"></div>
+  </div>
+
+  <button id="calc">How much work is that?</button>
+  <div id="error" class="error">Enter an hourly rate and purchase amount greater than $0.</div>
+
+  <section id="result" class="result" aria-live="polite">
+    <div id="price" class="price"></div>
+    <div id="time" class="time"></div>
+    <div class="work">of work</div>
+    <div id="rateUsed" class="rate-used"></div>
+    <div class="question">Worth the hours?</div>
+  </section>
+
+  <div class="tiny">Your settings are saved on this device for next time.</div>
+</main>
+
+<script>
+const rate=document.getElementById('rate');
+const purchase=document.getElementById('purchase');
+const calc=document.getElementById('calc');
+const result=document.getElementById('result');
+const price=document.getElementById('price');
+const time=document.getElementById('time');
+const error=document.getElementById('error');
+const toggle=document.getElementById('takehomeToggle');
+const settings=document.getElementById('takehomeSettings');
+const percent=document.getElementById('takehomePercent');
+const effective=document.getElementById('effective');
+const rateUsed=document.getElementById('rateUsed');
+
+rate.value=localStorage.getItem('worthTheHoursRate')||'';
+toggle.checked=localStorage.getItem('worthTheHoursTakehomeOn')==='true';
+percent.value=localStorage.getItem('worthTheHoursTakehomePercent')||'75';
+
+function formatMoney(n){return n.toLocaleString(undefined,{style:'currency',currency:'USD'})}
+function formatTime(hoursFloat){
+  const totalMinutes=Math.round(hoursFloat*60);
+  if(totalMinutes<60)return `${totalMinutes} ${totalMinutes===1?'minute':'minutes'}`;
+  const h=Math.floor(totalMinutes/60),m=totalMinutes%60;
+  if(m===0)return `${h} ${h===1?'hour':'hours'}`;
+  return `${h} ${h===1?'hour':'hours'} ${m} ${m===1?'minute':'minutes'}`;
+}
+function effectiveRate(){
+  const r=parseFloat(rate.value);
+  if(!(r>0))return 0;
+  if(!toggle.checked)return r;
+  const pct=parseFloat(percent.value);
+  if(!(pct>0&&pct<=100))return 0;
+  return r*(pct/100);
+}
+function refreshToggleUI(){
+  settings.classList.toggle('show',toggle.checked);
+  const r=parseFloat(rate.value),pct=parseFloat(percent.value);
+  effective.textContent=(toggle.checked&&r>0&&pct>0&&pct<=100)?`Estimated effective rate: ${formatMoney(r*pct/100)}/hour`:'';
+}
+function saveSettings(){
+  const r=parseFloat(rate.value);
+  if(r>0)localStorage.setItem('worthTheHoursRate',String(r));
+  localStorage.setItem('worthTheHoursTakehomeOn',String(toggle.checked));
+  const pct=parseFloat(percent.value);
+  if(pct>0&&pct<=100)localStorage.setItem('worthTheHoursTakehomePercent',String(pct));
+}
+function calculate(){
+  const r=effectiveRate(),p=parseFloat(purchase.value);
+  if(!(r>0)||!(p>0)){error.style.display='block';result.style.display='none';return}
+  error.style.display='none';saveSettings();
+  price.textContent=`${formatMoney(p)} costs`;
+  time.textContent=formatTime(p/r);
+  rateUsed.textContent=toggle.checked?`Using estimated take-home rate of ${formatMoney(r)}/hour`:`Using hourly rate of ${formatMoney(r)}/hour`;
+  result.style.display='block';
+}
+toggle.addEventListener('change',()=>{saveSettings();refreshToggleUI()});
+rate.addEventListener('input',refreshToggleUI);
+percent.addEventListener('input',()=>{saveSettings();refreshToggleUI()});
+calc.addEventListener('click',calculate);
+purchase.addEventListener('keydown',e=>{if(e.key==='Enter')calculate()});
+rate.addEventListener('keydown',e=>{if(e.key==='Enter')purchase.focus()});
+refreshToggleUI();
+</script>
+</body>
+</html>
